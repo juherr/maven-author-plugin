@@ -25,7 +25,7 @@ import org.apache.maven.project.MavenProject;
  */
 public class AuthorMojo extends AbstractMojo {
 
-    private final Map<Developer, List<JavaClass>> authorsFiles = new HashMap<Developer, List<JavaClass>>();
+    private final Map<Developer, List<String>> authorsFiles = new HashMap<Developer, List<String>>();
     /**
      * Location of the file.
      * @parameter expression="${project.build.sourceDirectory}"
@@ -34,47 +34,67 @@ public class AuthorMojo extends AbstractMojo {
      */
     private File sourceDirectory;
     /**
+     * The directory for interpolated authors.xml.
+     *
+     * @parameter expression="${project.build.directory}"
+     * @required
+     * @readonly
+     */
+    private File outputDirectory;
+    /**
      * @parameter default-value="${project}"
      * @required
      * @readonly
      */
     private MavenProject project = new MavenProject();
+    /**
+     * Character encoding for the auto-generated deployment file(s).
+     *
+     * @parameter default-value="UTF-8"
+     */
+    private String encoding;
 
     @Override
     public void execute() throws MojoExecutionException {
 
-        JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(sourceDirectory);
+        JavaClass[] classes = getProjectSources();
 
-        JavaClass[] classess = builder.getClasses();
-        for (JavaClass cls : classess) {
-            if (getLog().isDebugEnabled()) {
-                getLog().debug("process " + cls.getFullyQualifiedName());
-            }
+        for (JavaClass cls : classes) {
+            getLog().debug("process " + cls.getFullyQualifiedName());
+
             DocletTag[] authors = cls.getTagsByName("author");
             for (DocletTag author : authors) {
-                if (getLog().isDebugEnabled()) {
-                    getLog().warn("author found in source: " + author.getValue());
-                }
+                getLog().info("author found in source: " + author.getValue());
 
                 Set<Developer> developers = getDevelopers(author.getValue());
                 if (developers.isEmpty()) {
                     getLog().warn(author.getValue() + " is an unknown developer. You must add him in pom.xml file, section <developers>.");
-
                 } else {
-                    addClass(developers, cls);
+                    addDevelopersToClass(developers, cls);
                 }
             }
         }
 
-        // TODO generate result file
-        getLog().warn(authorsFiles.toString());
+        if (!outputDirectory.exists()) {
+            outputDirectory.mkdirs();
+        }
+
+        File report = new File(outputDirectory, "authors.xml");
+        AuthorXmlWriterContext context = new AuthorXmlWriterContext(report, classes.length, authorsFiles);
+        try {
+            new AuthorXmlWriter(encoding).write(context);
+        }
+        catch (AuthorPluginException e) {
+            throw new MojoExecutionException("Failed to generate authors.xml", e);
+        }
     }
 
     private Set<Developer> getDevelopers(final String authorValue) {
         Set<Developer> result = new TreeSet<Developer>();
+        // get developers defined in the pom.xml
         List<Developer> developers = project.getDevelopers();
         for (Developer developer : developers) {
+            // a developer could be mark in @author with his id/login, email or full name
             if (authorValue.contains(developer.getId())) {
                 result.add(developer);
                 continue;
@@ -88,18 +108,27 @@ public class AuthorMojo extends AbstractMojo {
                 continue;
             }
         }
+        if (result.size() != authorValue.split(",").length) {
+            getLog().warn("The convention is not respected for \"" + authorValue + "\". See http://download.oracle.com/javase/1.5.0/docs/tooldocs/windows/javadoc.html#@author");
+        }
 
         return result;
     }
 
-    private void addClass(final Set<Developer> developers, final JavaClass cls) {
+    private JavaClass[] getProjectSources() {
+        JavaDocBuilder builder = new JavaDocBuilder();
+        builder.addSourceTree(sourceDirectory);
+        return builder.getClasses();
+    }
+
+    private void addDevelopersToClass(final Set<Developer> developers, final JavaClass cls) {
         for (Developer developer : developers) {
-            List<JavaClass> classes = authorsFiles.get(developer);
+            List<String> classes = authorsFiles.get(developer);
             if (classes == null) {
-                classes = new ArrayList<JavaClass>();
+                classes = new ArrayList<String>();
                 authorsFiles.put(developer, classes);
             }
-            classes.add(cls);
+            classes.add(cls.getFullyQualifiedName());
         }
     }
 }
