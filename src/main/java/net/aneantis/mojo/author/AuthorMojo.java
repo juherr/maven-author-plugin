@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import org.apache.maven.model.Developer;
 import org.apache.maven.project.MavenProject;
+import org.codehaus.plexus.util.DirectoryScanner;
 
 /**
  * 
@@ -27,26 +28,19 @@ public class AuthorMojo extends AbstractMojo {
 
     private final Map<Developer, List<String>> authorsFiles = new HashMap<Developer, List<String>>();
     /**
-     * Location of the file.
-     * @parameter expression="${project.build.sourceDirectory}"
-     * @required
-     * @readonly
-     */
-    private File sourceDirectory;
-    /**
      * The directory for interpolated authors.xml.
      *
-     * @parameter expression="${project.build.directory}"
+     * @parameter expression="${project.build.directory}/authors.xml"
      * @required
      * @readonly
      */
-    private File outputDirectory;
+    private File output;
     /**
      * @parameter default-value="${project}"
      * @required
      * @readonly
      */
-    private MavenProject project = new MavenProject();
+    private MavenProject project;
     /**
      * Character encoding for the auto-generated deployment file(s).
      *
@@ -57,8 +51,7 @@ public class AuthorMojo extends AbstractMojo {
     @Override
     public void execute() throws MojoExecutionException {
 
-        JavaClass[] classes = getProjectSources();
-
+        JavaClass[] classes = getJavaClasses();
         for (JavaClass cls : classes) {
             getLog().debug("process " + cls.getFullyQualifiedName());
 
@@ -75,12 +68,7 @@ public class AuthorMojo extends AbstractMojo {
             }
         }
 
-        if (!outputDirectory.exists()) {
-            outputDirectory.mkdirs();
-        }
-
-        File report = new File(outputDirectory, "authors.xml");
-        AuthorXmlWriterContext context = new AuthorXmlWriterContext(report, classes.length, authorsFiles);
+        AuthorXmlWriterContext context = new AuthorXmlWriterContext(output, getNumberOfJavaSource(), authorsFiles);
         try {
             new AuthorXmlWriter(encoding).write(context);
         }
@@ -108,17 +96,25 @@ public class AuthorMojo extends AbstractMojo {
                 continue;
             }
         }
-        if (result.size() != authorValue.split(",").length) {
+        if (!result.isEmpty() && result.size() != authorValue.split(",").length) {
             getLog().warn("The convention is not respected for \"" + authorValue + "\". See http://download.oracle.com/javase/1.5.0/docs/tooldocs/windows/javadoc.html#@author");
         }
 
         return result;
     }
 
-    private JavaClass[] getProjectSources() {
+    private JavaClass[] getJavaClasses() {
         JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(sourceDirectory);
+        builder.addSourceTree(new File(project.getBuild().getSourceDirectory()));
         return builder.getClasses();
+    }
+
+    private int getNumberOfJavaSource() {
+        DirectoryScanner scanner = new DirectoryScanner();
+        scanner.setBasedir(project.getBuild().getSourceDirectory());
+        scanner.setIncludes(new String[]{"**/*.java"});
+        scanner.scan();
+        return scanner.getIncludedFiles().length;
     }
 
     private void addDevelopersToClass(final Set<Developer> developers, final JavaClass cls) {

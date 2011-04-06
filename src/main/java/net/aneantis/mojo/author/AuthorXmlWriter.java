@@ -30,14 +30,17 @@ public class AuthorXmlWriter {
             throw new AuthorPluginException("Exception while opening file[" + context.getDestinationFile().getAbsolutePath() + "]", e);
         }
 
-        XMLWriter writer = new PrettyPrintXMLWriter(w, encoding, "");
+        XMLWriter writer = new PrettyPrintXMLWriter(w, encoding, null);
         writer.startElement("author");
         writer.addAttribute("sourceNumber", String.valueOf(context.getSourceFileNumber()));
         for (Map.Entry<Developer, List<String>> developer : context.getAuthorsFiles().entrySet()) {
             writer.startElement("developer");
             writer.addAttribute("id", developer.getKey().getId());
-            writer.addAttribute("name", developer.getKey().getName());
-            writer.addAttribute("email", developer.getKey().getEmail());
+            String name = developer.getKey().getName() != null ? developer.getKey().getName() : "Unknown name";
+            writer.addAttribute("name", name);
+            String email = developer.getKey().getEmail() != null ? developer.getKey().getEmail() : "Unknown email";
+            writer.addAttribute("email", email);
+
             for (String file : developer.getValue()) {
                 writer.startElement("class");
                 writer.writeText(file);
