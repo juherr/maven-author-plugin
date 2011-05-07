@@ -9,10 +9,10 @@ import org.apache.maven.plugin.MojoExecutionException;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
 import org.apache.maven.model.Developer;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
@@ -77,7 +77,7 @@ public final class AuthorMojo extends AbstractMojo {
     }
 
     private Set<Developer> getDevelopers(final String authorValue) {
-        Set<Developer> result = new TreeSet<Developer>();
+        Set<Developer> result = new HashSet<Developer>();
         // get developers defined in the pom.xml
         List<Developer> developers = project.getDevelopers();
         for (Developer developer : developers) {
