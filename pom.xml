@@ -5,7 +5,7 @@
     <groupId>net.aneantis.mojo.author</groupId>
     <artifactId>maven-author-plugin</artifactId>
     <packaging>maven-plugin</packaging>
-    <version>1.0</version>
+    <version>1.1-SNAPSHOT</version>
 
     <name>maven-author-plugin Maven Mojo</name>
     <url>http://code.google.com/p/maven-author-plugin/</url>
