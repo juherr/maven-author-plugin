@@ -4,7 +4,6 @@ import java.io.File;
 import org.apache.maven.model.Build;
 import org.apache.maven.model.Developer;
 import org.apache.maven.plugin.testing.AbstractMojoTestCase;
-import org.apache.maven.plugin.testing.stubs.MavenProjectStub;
 import org.apache.maven.project.MavenProject;
 
 /**
