@@ -26,6 +26,8 @@ import org.codehaus.plexus.util.DirectoryScanner;
  */
 public class AuthorMojo extends AbstractMojo {
 
+    //idea : 2 mojo with 2 goals : they extends an abstract class with common methods only differences are in the implementations
+
     private final Map<Developer, List<String>> authorsFiles = new HashMap<Developer, List<String>>();
     /**
      * The directory for interpolated authors.xml.
