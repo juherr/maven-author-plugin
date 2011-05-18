@@ -59,4 +59,39 @@ public final class AuthorXmlWriter {
             logger.warn(ex);
         }
     }
+
+     public void write(final FileXmlWriterContext context) throws AuthorPluginException {
+        Writer w = null;
+        try {
+            w = WriterFactory.newXmlWriter(context.getDestinationFile());
+        }
+        catch (IOException e) {
+            throw new AuthorPluginException("Exception while opening file[" + context.getDestinationFile().getAbsolutePath() + "]", e);
+        }
+
+        XMLWriter writer = new PrettyPrintXMLWriter(w, encoding, null);
+        writer.startElement("author");
+        writer.addAttribute("sourceNumber", String.valueOf(context.getSourceFileNumber()));
+        for (Map.Entry<String, List<Developer>> files : context.getAuthorsFiles().entrySet()) {
+            writer.startElement("class");
+            writer.addAttribute("name", files.getKey());
+
+            for (Developer dev : files.getValue()) {
+                writer.startElement("developer");writer.addAttribute("id", dev.getId());
+                String name = dev.getName() != null ? dev.getName() : "Unknown name";
+                writer.addAttribute("name", name);
+                String email = dev.getEmail() != null ? dev.getEmail() : "Unknown email";
+                writer.addAttribute("email", email);
+                writer.endElement();
+            }
+            writer.endElement();
+        }
+        writer.endElement();
+        try {
+            w.close();
+        }
+        catch (IOException ex) {
+            logger.warn(ex);
+        }
+    }
 }
