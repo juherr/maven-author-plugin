@@ -2,6 +2,7 @@ package net.aneantis.mojo.author;
 
 import com.thoughtworks.qdox.model.DocletTag;
 import com.thoughtworks.qdox.model.JavaClass;
+import com.thoughtworks.qdox.model.JavaMethod;
 import org.apache.maven.plugin.MojoExecutionException;
 
 import java.io.File;
@@ -52,7 +53,6 @@ public final class AuthorMojo extends AbstractAuthorMojo {
                 if (developers.isEmpty()) {
                     getLog().warn(author.getValue() + " is an unknown developer. You must add him in pom.xml file, section <developers>.");
                 } else {
-                    getLog().info("calling add with "+DevelopersToString(developers)+"to class " + cls.getFullyQualifiedName());
                     addDevelopersToClass(developers, cls);
                 }
             }
@@ -73,30 +73,22 @@ public final class AuthorMojo extends AbstractAuthorMojo {
     }
 
     private void addDevelopersToClass(final Set<Developer> developers, final JavaClass cls) {
-        getLog().info("adding developpers "+DevelopersToString(developers)+"to class " + cls.getFullyQualifiedName());
+        getLog().debug("adding developpers " + DevelopersToString(developers) + "to class " + cls.getFullyQualifiedName());
         for (Developer developer : developers) {
-            getLog().info("developer : " + developer.getId());
+            getLog().debug("developer : " + developer.getId());
             List<String> classes = authorsFiles.get(developer);
             if (classes == null) {
                 classes = new ArrayList<String>();
                 authorsFiles.put(developer, classes);
             }
-            getLog().info("putting developer " + developer.getId() + " to class " + cls.getFullyQualifiedName());
+            getLog().debug("putting developer " + developer.getId() + " to class " + cls.getFullyQualifiedName());
             classes.add(cls.getFullyQualifiedName());
         }
     }
 
-    private String ListToString(List<String> l) {
-        StringBuilder res = new StringBuilder();
-        for(String s : l ) {
-            res.append(s).append(" ");
-        }
-        return res.toString();
-    }
-
     private String DevelopersToString(Set<Developer> l) {
         StringBuilder res = new StringBuilder();
-        for(Developer d : l ) {
+        for (Developer d : l) {
             res.append(d.getId()).append(" ");
         }
         return res.toString();

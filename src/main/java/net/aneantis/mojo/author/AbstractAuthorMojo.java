@@ -27,7 +27,6 @@ public abstract class AbstractAuthorMojo extends AbstractMojo {
      */
     private MavenProject project = null;
 
-    //SAME CONTENT SAME SIGNATURE
     protected Set<Developer> getDevelopers(final String authorValue) {
         Set<Developer> result = new HashSet<Developer>();
         // get developers defined in the pom.xml
@@ -54,7 +53,6 @@ public abstract class AbstractAuthorMojo extends AbstractMojo {
         return result;
     }
 
-    //SAME CONTENT SAME SIGNATURE
     protected JavaClass[] getJavaClasses() {
         JavaDocBuilder builder = new JavaDocBuilder();
         builder.addSourceTree(new File(project.getBuild().getSourceDirectory()));
