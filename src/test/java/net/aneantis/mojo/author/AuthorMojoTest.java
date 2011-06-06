@@ -31,7 +31,13 @@ public class AuthorMojoTest extends AbstractMojoTestCase {
 
         Developer developer = new Developer();
         developer.setId("juherr");
-        MavenProject project = new AuthorMavenProjectStub(developer);
+        developer.setName("Julien Herr");
+        developer.setEmail("julien@herr.com");
+        Developer developer2 = new Developer();
+        developer2.setId("flgourie");
+        developer2.setName("Florian Gourier");
+        developer2.setEmail("florian.gourier@gmail.com");
+        MavenProject project = new AuthorMavenProjectStub(developer,developer2);
 
         Build build = new Build();
         build.setSourceDirectory(getTestPath("src/main/java"));

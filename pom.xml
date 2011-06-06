@@ -17,6 +17,11 @@
             <name>Julien Herr</name>
             <email>julien@herr.fr</email>
         </developer>
+        <developer>
+            <id>flgourie</id>
+            <name>Florian Gourier</name>
+            <email>florian.gourier@gmail.com</email>
+        </developer>
     </developers>
 
     <scm>
@@ -61,7 +66,7 @@
                     <source>1.6</source>
                     <target>1.6</target>
                 </configuration>
-            </plugin>        
+            </plugin>
         </plugins>
     </build>
     
@@ -93,7 +98,7 @@
                                 </goals>
                             </execution>
                         </executions>
-                    </plugin> 
+                    </plugin>
                 </plugins>
             </build>
         </profile>
