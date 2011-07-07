@@ -20,6 +20,7 @@ import org.apache.maven.project.MavenProject;
  * @author flgourie
  */
 public abstract class AbstractAuthorMojo extends AbstractMojo {
+
     /**
      * @parameter default-value="${project}"
      * @required
@@ -55,15 +56,22 @@ public abstract class AbstractAuthorMojo extends AbstractMojo {
 
     protected JavaClass[] getJavaClasses() {
         JavaDocBuilder builder = new JavaDocBuilder();
-        builder.addSourceTree(new File(project.getBuild().getSourceDirectory()));
+        File sourceFolder = new File(project.getBuild().getSourceDirectory());
+        if (sourceFolder.exists()) {
+            builder.addSourceTree(sourceFolder);
+        }
         return builder.getClasses();
     }
 
     protected int getNumberOfJavaSource() {
         DirectoryScanner scanner = new DirectoryScanner();
-        scanner.setBasedir(project.getBuild().getSourceDirectory());
-        scanner.setIncludes(new String[]{"**/*.java"});
-        scanner.scan();
-        return scanner.getIncludedFiles().length;
+        File sourceFolder = new File(project.getBuild().getSourceDirectory());
+        if (sourceFolder.exists()) {
+            scanner.setBasedir(project.getBuild().getSourceDirectory());
+            scanner.setIncludes(new String[]{"**/*.java"});
+            scanner.scan();
+            return scanner.getIncludedFiles().length;
+        }
+        return 0;
     }
 }

@@ -1,9 +1,8 @@
 package net.aneantis.mojo.author;
 
 import java.io.File;
-import java.util.List;
 import java.util.Map;
-import org.apache.maven.model.Developer;
+import net.aneantis.mojo.author.xmldata.XMLFileInfo;
 
 /**
  *
@@ -13,9 +12,9 @@ public final class FileXmlWriterContext {
 
     private final File destinationFile;
     private final int sourceFileNumber;
-    private final Map<String, List<Developer>> authorsFiles;
+    private final Map<String, XMLFileInfo> authorsFiles;
 
-    public FileXmlWriterContext(final File destinationFile, final int sourceFileNumber, final Map<String, List<Developer>> authorsFiles) {
+    public FileXmlWriterContext(final File destinationFile, final int sourceFileNumber, final Map<String, XMLFileInfo> authorsFiles) {
         this.destinationFile = destinationFile;
         this.sourceFileNumber = sourceFileNumber;
         this.authorsFiles = authorsFiles;
@@ -29,7 +28,7 @@ public final class FileXmlWriterContext {
         return sourceFileNumber;
     }
 
-    public Map<String, List<Developer>> getAuthorsFiles() {
+    public Map<String, XMLFileInfo> getAuthorsFiles() {
         return authorsFiles;
     }
 }
